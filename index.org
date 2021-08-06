@@ -1,0 +1,587 @@
+#+TITLE: Notes for Algorithm Practice
+#+STARTUP: content
+#+STARTUP: indent
+
+* Data Structures and Algorithm
+
+** Search
+
+- *Binary Search*
+- *Monotocity*
+
+** Segment Tree
+
+Links:
+- [[https://cp-algorithms.com/data_structures/segment_tree.html][CP Algorithm: Segment Tree]]
+
+Data Structures:
+- Array based
+- BST
+
+** Dynamic Programming
+
+Heuristics:
+
+- Find a *Brute Force* way
+- Refine the method with *Recursion* and find *subproblems*
+- Try *Memorization*
+- List 2D *DP Array*
+- Try to shrink to *1D*
+
+*** 2D Table Questions
+
+- MEDIUM [[https://leetcode.com/problems/unique-paths/][62. Unique Paths]]
+- MEDIUM [[https://leetcode.com/problems/unique-paths-ii/][63. Unique Paths II]]
+- MEDIUM [[https://leetcode.com/problems/minimum-path-sum/][64. Minimum Path Sum]]
+- HARD [[https://leetcode.com/problems/dungeon-game/][174. Dungeon Game]] (reversed direction)
+
+*** [[https://leetcode.com/problems/longest-palindromic-subsequence][516. Longest Palindromic Subsequence]]
+*** [[https://leetcode.com/problems/maximal-rectangle/][85. Maximal Rectangle]]
+
+Use the idea of [[https://leetcode.com/problems/largest-rectangle-in-histogram/][84. Largest Rectangle in Histogram]]
+
+*** [[https://leetcode.com/problems/super-egg-drop/][887. Super Egg Drop]] DP with Optimality Criterion
+
+** Factorization
+
+- [[https://cp-algorithms.com/algebra/factorization.html][Factorization]]
+
+** Topological Sorting
+- [[https://www.hackerearth.com/practice/algorithms/graphs/topological-sort/tutorial/][Hackerearth: Topological Sorting]]
+
+BFS!
+
+#+BEGIN_SRC cpp
+vector<int> topologicalSort(int num, vector<vector<int>>& edges) {
+  vector<vector<int>> graph(num);
+  vector<int> incoming(num, 0);
+  for (auto& edge: edges) {
+    graph[edge[1]].push_back(edge[0]);
+    incoming[edge[0]]++;
+  }
+  queue<int> q;
+  for (int i = 0; i < num; i++) {
+    if (incoming[i] == 0) {
+      q.push(i);
+    }
+  }
+  vector<int> ans;
+  while (!q.empty()) {
+    int curr = q.front();
+    q.pop();
+    ans.push_back(curr);
+    num--;
+    for (auto n: graph[curr]) {
+      incoming[n]--;
+      if (incoming[n] == 0) {
+        q.push(n);
+      }
+    }
+  }
+  if (num) {
+    throw "no topological soring";
+  } else {
+    return ans;
+  }
+}
+#+END_SRC
+
+** Binary Indexed Tree
+
+- [[https://www.topcoder.com/community/competitive-programming/tutorials/binary-indexed-trees/][topcoder: Binary Indexed Tree]]
+
+
+Update and find element <= x in O(log m) time
+
+#+CAPTION: Binary Indexed Tree with frequencies
+[[https://images.ctfassets.net/piwi0eufbb2g/3x4z986CTmMGWH50X7mp9q/78e572d03601658d4ec6b5353974c85c/bitval.gif]]
+
+#+begin_src cpp
+struct BinaryIndexTree {
+
+  vector<int> tree;
+  int maxidx;
+
+  BinaryIndexTree(int maxidx) {
+    this->maxidx = maxidx;
+    tree = vector<int> (maxidx, 0);
+  }
+
+  void update(int idx, int val) {
+    while (idx <= maxidx) {
+      tree[idx] += val;
+      idx += (idx & -idx);
+    }
+  }
+
+  int read(int idx) {
+    int s = 0;
+    while (idx > 0) {
+      s += tree[idx];
+      idx -= (idx & -idx);
+    }
+    return s;
+  }
+
+};
+#+end_src
+
+Time Complexity: O(log m) where m is max index
+
+*** 2D BIT
+
+- [[https://leetcode.com/problems/range-sum-query-2d-mutable/][308. Range Sum Query 2D - Mutable]]
+
+** Sliding Window
+
+*** Maximum of Window
+
+Use a Deque to maintain the maximum(minimum) value in a window.
+
+Keep this Deque weak monotonical decreasing.
+
+#+BEGIN_SRC cpp
+deque<int> maxd; // keeps reference of array positions
+
+// expend window
+while (not maxd.empty() and nums[maxd.back()] <= nums[i])
+  maxd.pop_back();
+maxd.push_back(i);
+
+// shrink window
+if (maxd.front() == j)
+  maxd.popfront();
+
+// get maximum
+auto maxvalue = nums[maxd.front()];
+#+END_SRC
+
+- [[https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/][1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit]]
+- [[https://leetcode.com/problems/sliding-window-maximum][239. Sliding Window Maximum]]
+
+*** [[https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/][862. Shortest Subarray with Sum at Least K]]
+
+Since negative numbers are allowed, a normal sliding window cannot solve it.
+
+*** Sliing Window on matrix
+
+[[https://leetcode.com/problems/number-of-submatrices-that-sum-to-target/][1074. Number of Submatrices That Sum to Target]]
+
+Should in O(n^3) time complexity.
+
+Base Question: [[https://leetcode.com/problems/subarray-sum-equals-k/][560. Subarray Sum Equals K]]
+
+Use hash map and reversed query.
+
+** Binary Search
+
+Find Upper and Lower bound
+
+- [[https://www.geeksforgeeks.org/implementing-upper_bound-and-lower_bound-in-c/][Implementing =upper_bound()= and =lower_bound()= in C]]
+- [[https://shawnlyu.com/algorithms/binary-search-find-upper-and-lower-bound/][Binary Search - Find Upper and Lower Bound]]
+
+*** [#A] [[https://leetcode.com/problems/median-of-two-sorted-arrays/][4. Median of Two Sorted Arrays]]
+
+- [[https://medium.com/@hazemu/finding-the-median-of-2-sorted-arrays-in-logarithmic-time-1d3f2ecbeb46][Finding the Median of 2 Sorted Arrays in Logarithmic Time]]
+
+*** [[https://leetcode.com/problems/divide-chocolate/discuss/975098/To-solve-3-(or-more)-hard-binary-search-problems-all-you-need-is-a-template][Hard Binary Search]]
+
+Check out the following code to 3 different hard questions. And you can see they are almost the same. I am sure you can figure out the template.
+
+- [[https://leetcode.com/problems/shortest-subarray-with-sum-at-least-k/][862. Shortest Subarray with Sum at Least K]]
+
+Return the length of the shortest, non-empty, contiguous subarray of A with sum at least K.
+
+If there is no non-empty subarray with sum at least K, return -1.
+
+#+BEGIN_SRC
+Example 1:
+Input: A = [1], K = 1
+Output: 1
+
+Example 2:
+Input: A = [1,2], K = 4
+Output: -1
+
+Example 3:
+Input: A = [2,-1,2], K = 3
+Output: 3
+
+Note:
+1.    1 <= A.length <= 50000
+2.    -10 ^ 5 <= A[i] <= 10 ^ 5
+3.    1 <= K <= 10 ^ 9
+#+END_SRC
+
+#+BEGIN_SRC cpp
+int maximizeSweetness(vector<int>& sweetness, int K) {
+  auto isValid = [&](int target) {
+    int cnt = 0, sum = 0;
+    for (auto v : sweetness) {
+      sum += v;
+      if (sum >= target) cnt++, sum = 0;
+    }
+    return cnt >= K+1;
+  };
+
+  int left = *min_element(sweetness.begin(), sweetness.end());
+  int right = accumulate(sweetness.begin(), sweetness.end(), 0);
+
+  while (left < right) {
+    int mid = left + (right - left + 1) / 2;
+    if (!isValid(mid)) right = mid - 1;
+    else left = mid;
+  }
+  return left;
+}
+#+END_SRC
+
+- [[https://leetcode.com/problems/split-array-largest-sum/][410. Split Array Largest Sum]]
+- [[https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/discuss/975112/Isn't-this-exactly-"split-array-largest-sum"][1011. Capacity To Ship Packages Within D Days]]
+
+#+BEGIN_SRC cpp
+int splitArray(vector<int>& nums, int m) {
+  // greedy split into sums <= target
+  auto isValid = [&] (int target) {
+    int cnt = 0, sum = 0;
+    for (auto v : nums) {
+      sum += v;
+      if (sum > target) cnt++, sum = v;
+    }
+    return cnt+1 <= m;
+  };
+
+  int left = *max_element(nums.begin(), nums.end());
+  int right = accumulate(nums.begin(), nums.end(), 0);
+  while (left < right) {
+    int mid = left + (right - left) / 2;
+    if (!isValid(mid)) left = mid + 1;
+    else right = mid;
+  }
+  return left;
+}
+#+END_SRC
+
+** Union Find
+
+#+BEGIN_SRC cpp
+class UnionFind {
+  vector<int> table;
+public:
+  UnionFind(int size) {
+    table = vector(size, -1);
+  }
+
+  int find(int a) {
+    while (table[a] >= 0)
+      a = table[a];
+    return a;
+  }
+
+  void merge(int a, int b) {
+    a = find(a);
+    b = find(b);
+    if (a == b) return;
+    if (table[b] < table[a]) swap(a, b);
+    table[a] += table[b];
+    table[b] = a;
+  }
+};
+#+END_SRC
+
+*** TODO [[https://leetcode.com/problems/redundant-connection-ii][685. Redundant Connection II]]
+
+** Dijkstra :graph:
+
+dijkstra in different usage
+
+** KMP :str:
+
+
+[[https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm][Knuth-Morris-Pratt algorithm]]
+
+#+NAME: build KMP table
+#+BEGIN_SRC cpp
+// haystack, needle
+assert(needle.size() > 0);
+pos = 1;
+cnd = 0;
+while (pos < needle.size()) {
+  if (needle[pos] == needle[cnd]) {
+    table[pos] = table[cnd];
+  } else {
+    table[pos] = cnd;
+    while (cnd >= 0 and needle[pos] != needle[cnd])
+      cnd = table[cnd];
+  }
+  pos++;
+  cnd++;
+}
+table[pos] = cnd;
+#+END_SRC
+
+** Least steps to cover a range :greedy:
+
+- [[https://leetcode.com/problems/minimum-number-of-taps-to-open-to-water-a-garden][1326. Minimum Number of Taps to Open to Water a Garden]]
+- [[https://leetcode.com/problems/video-stitching/][1024. Video Stitching]]
+- [[https://leetcode.com/problems/jump-game/][55. Jump Game]]
+- [[https://leetcode.com/problems/jump-game-ii/][45. Jump Game II]]
+
+Method:
+
+sorted by lhs, move forward until lhs <= bound counter, count a step, bound counter be maximum of rhs, and loop.
+
+Heuristics:
+
+- [[https://leetcode.com/problems/minimum-number-of-taps-to-open-to-water-a-garden/discuss/1047283/Python-Single-Pass-Greedy-Stack-Solution-with-Comments][Python Single-Pass Greedy Stack Solution with Comments]]
+- [[https://leetcode.com/problems/minimum-number-of-taps-to-open-to-water-a-garden/discuss/1117822/Java-clean-O%28n%29-Greedy-Solution-oror-with-detailed-comments][Java clean O(n) Greedy Solution || with detailed comments]]
+
+** Trie
+
+#+begin_src cpp
+class Trie {
+    struct Node {
+        bool endStr = false;
+        Node* table[26] = {nullptr};
+
+        ~Node() {
+            for (int i = 0; i < 26; i++) {
+                if (table[i])
+                    delete table[i];
+            }
+        }
+    } *root;
+
+public:
+    /** Initialize your data structure here. */
+    Trie() {
+        root = new Node();
+    }
+
+    ~Trie() {
+        delete root;
+    }
+
+    /** Inserts a word into the trie. */
+    void insert(string word) {
+        Node* node = root;
+        for (auto ch: word) {
+            if (!node->table[ch - 'a']) {
+                node->table[ch - 'a'] = new Node();
+            }
+            node = node->table[ch - 'a'];
+        }
+        node->endStr = true;
+    }
+
+    /** Returns if the word is in the trie. */
+    bool search(string word) {
+        Node* node = root;
+        for (auto ch: word) {
+            if (node->table[ch - 'a']) {
+                node = node->table[ch - 'a'];
+            } else {
+                return false;
+            }
+        }
+        return node->endStr;
+    }
+
+    /** Returns if there is any word in the trie that starts with the given prefix. */
+    bool startsWith(string prefix) {
+        Node* node = root;
+        for (auto ch: prefix) {
+            if (node->table[ch - 'a']) {
+                node = node->table[ch - 'a'];
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+#+end_src
+
+** Heap :heap:map:
+
+*Use an ordered map if you want to delete randomly in a heap*
+
+- [[https://leetcode.com/problems/exam-room][855. Exam Room]]
+
+*** HOLD [[https://leetcode.com/problems/minimum-cost-to-hire-k-workers/][857. Minimum Cost to Hire K Workers]] :heap:greedy:
+*** [[https://leetcode.com/problems/find-the-kth-smallest-sum-of-a-matrix-with-sorted-rows][1439. Find the Kth Smallest Sum of a Matrix With Sorted Rows]]
+
+Use a BFS to peek minimum sum every time, and get result when pick k times. (Thanks to Meow-Meow)
+
+[[https://leetcode.com/problems/find-the-kth-smallest-sum-of-a-matrix-with-sorted-rows/discuss/1153847/Simple-Solution-Using-Set-As-Priority_Queue-O(k*n*logn)][Simple Solution Using Set As Priority_Queue O(k * n * logn)]]
+
+** Range Query :map:segtree:
+
+- [[https://leetcode.com/problems/falling-squares][699. Falling Squares]]
+- [[https://leetcode.com/problems/my-calendar-iii][732. My Calendar III]]
+- [[https://leetcode.com/problems/range-module][715. Range Module]]
+
+** Knapsack Problem :dp:
+
+- https://zhuanlan.zhihu.com/p/93857890
+
+*** 0-1 Knapsack Problem :dp:
+
+DP on weights and nth items (put or not)
+
+Time Complexity: O(w * n)
+where w is size of weight and n is count of items
+
+- [[https://leetcode.com/problems/partition-equal-subset-sum/][416. Partition Equal Subset Sum]]
+- [[https://leetcode.com/problems/tallest-billboard/][956. Tallest Billboard]]
+
+*** HOLD Meet in the Middle
+
+- [[https://leetcode.com/problems/closest-subsequence-sum/][1755. Closest Subsequence Sum]]
+- [[https://leetcode.com/problems/split-array-with-same-average/][805. Split Array With Same Average]]
+
+** Longest Increasing Subsequence (LIS) :dp:
+
+#+begin_src cpp
+int lengthOfLIS(vector<int>& nums) {
+  vector<int> table;
+  for (auto n: nums) {
+    auto it = lower_bound(table.begin(), table.end(), n);
+    if (it == table.end()) {
+      table.push_back(n);
+    } else {
+      *it = min(*it, n);
+    }
+  }
+  return table.size();
+}
+#+end_src
+
+- [[https://leetcode.com/problems/longest-increasing-subsequence/][300. Longest Increasing Subsequence]]
+- [[https://leetcode.com/problems/largest-divisible-subset][368. Largest Divisible Subset]]
+
+** Longest Common Subsequence (LCS) :dp:
+
+- [[https://leetcode.com/problems/longest-common-subsequence/][1143. Longest Common Subsequence]]
+- [[https://leetcode.com/problems/longest-palindromic-subsequence/][516. Longest Palindromic Subsequence]]
+
+** Primes
+
+SymPy has many good implementations for number theory.
+
++ [[https://github.com/sympy/sympy/blob/46e00feeef5204d896a2fbec65390bd4145c3902/sympy/ntheory/primetest.py#L472-L641][sympy/ntheory/primetest.py:isprime]]
++ [[https://github.com/sympy/sympy/blob/46e00feeef5204d896a2fbec65390bd4145c3902/sympy/ntheory/generate.py#L599-L647][sympy/ntheory/generator.py:prevprime,nextprime]]
+
+
+- [ ] [[https://codingcompetitions.withgoogle.com/kickstart/round/0000000000435a5b/000000000077a8e6][Consecutive Primes]]
+
+*** TODO Sieve of Eratosthenes
+
+* Resources
+
+- [[https://www.hackerearth.com/practice/algorithms/][HackerEarth]]
+- [[https://cp-algorithms.com/][E-Maxx Algorithms in English]]
+- [[https://cses.fi/book.html][Competitive Programmer's Handbook]]
+- [[https://oi-wiki.org/][OI wiki]]
+
+* Experience
+** Google Interview
+
+- [[https://onlinechallenge.withgoogle.com/faq][FAQ]]
+- [[https://www.geeksforgeeks.org/gocc18-google-online-coding-challenge-2020-new-gradindia][GOCC 18]]
+
+- short intro
+- ask clarify questions
+- pseudo-code
+- brute force solution
+- optimized solution
+- test cases
+
+https://leetcode.com/discuss/interview-experience/423119/Google-or-L3-or-Japan-or-Oct-2019-Reject
+
+Questions:
+
+- range of input
+- null pointer
+- is distinct element?
+
+** TODO [#A] LeetCode Tour
+*** TODO [[https://leetcode.com/problems/count-of-range-sum/][327. Count of Range Sum]]
+*** TODO [[https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended-ii/][1751. Maximum Number of Events That Can Be Attended II]]
+*** TODO [[https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/][1353. Maximum Number of Events That Can Be Attended]]
+*** TODO [#C] [[https://leetcode.com/problems/redundant-connection-ii/][685. Redundant Connection II]]
+*** TODO [[https://leetcode.com/problems/minimum-number-of-refueling-stops/][871. Minimum Number of Refueling Stops]]
+* Tips
+
+- Try Brute Force First
+- Use easier Data Structure first
+- Do *NOT* use iterator first
+
+* Snippets
+
+** C++ use pair as key :cpp:
+
+#+BEGIN_SRC cpp
+struct pair_hash {
+  template<class T1, class T2>
+  std::size_t operator() (const std::pair<T1, T2> &pair) const {
+    return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+  }
+};
+#+END_SRC
+
+https://www.techiedelight.com/use-std-pair-key-std-unordered_map-cpp/
+
+** Using context-sensitive comparing function :cpp:
+
+[[https://stackoverflow.com/questions/15588428/how-can-i-declare-a-custom-sort-function-on-stdmap-declaration/15588557#15588557][Stackoverflow: declare a custom sort function]]
+
+#+begin_src cpp
+auto comp = [](int a, int b) { return std::bitset<32>(a).count() < std::bitset<32>(b).count(); };
+std::map<int, int, decltype(comp)> m(comp);
+#+end_src
+
+Using a structure
+
+#+begin_src cpp
+struct Compare {
+  vector<int> &context;
+  bool operator() (const int &a, const int &b) const {
+    return context[a] < context[b];
+  }
+};
+
+set<int, Compare> ss(Compare{arr});
+#+end_src
+
+** Python Data Structure :py:
+
+*** Heap
+
+#+begin_src python
+import heapq
+vec = []
+# max-heap
+heapq.heapify(vec)
+heapq.heappush(vec, el)
+heapq.heappop(vec)
+#+end_src
+
+*** Deque
+
+#+begin_src python
+import collections
+dq = collections.deque()
+dq.append(x)     # push_back
+dp.appendleft(x) # push_front
+dp.pop()         # back  and pop_back
+dp.popleft()     # front and pop_front
+#+end_src
+
+*** Counter
+
+#+begin_src python
+import collections
+c = collections.Counter()
+# like a hash dict
+#+end_src
