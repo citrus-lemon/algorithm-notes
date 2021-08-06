@@ -1,4 +1,5 @@
 #+TITLE: Notes for Algorithm Practice
+#+OPTIONS: toc:2
 #+STARTUP: content
 #+STARTUP: indent
 
